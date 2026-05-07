@@ -8,12 +8,12 @@ trigger:
 
 variables:
   # Connection Names from your ADO Service Connections
-  dockerRegistryServiceConnection: 'acr-connection' # Replace with your ACR connection name
-  kubernetesServiceConnection: 'aks-connection'     # Replace with your AKS connection name
+  dockerRegistryServiceConnection: 'acr-connect' 
+  kubernetesServiceConnection: 'aks-connect'     
   
   # Resource Details
-  imageRepository: 'pulse-work-api'
-  containerRegistry: 'pulseflowacr.azurecr.io'      # Replace with your ACR Login Server
+  imageRepository: 'pulseapp'
+  containerRegistry: 'flowacr.azurecr.io'      
   dockerfilePath: '**/Dockerfile'
   tag: '$(Build.BuildId)'
 
@@ -26,7 +26,7 @@ stages:
       vmImage: 'ubuntu-latest'
     steps:
     - task: Docker@2
-      displayName: "Build & Push to ACR"
+      displayName: "Build & Push ACR"
       inputs:
         command: buildAndPush
         repository: $(imageRepository)
@@ -44,21 +44,21 @@ stages:
   - deployment: Deploy
     pool:
       vmImage: 'ubuntu-latest'
-    environment: 'production' # Optional: Creates an Environment in ADO for tracking
+    environment: 'dev'
     strategy:
       runOnce:
         deploy:
           steps:
           - task: HelmDeploy@0
-            displayName: "Helm Upgrade/Install"
+            displayName: "Helm Deploy"
             inputs:
-              connectionType: 'Kubernetes Service Connection'
-              kubernetesServiceConnection: $(kubernetesServiceConnection)
-              namespace: 'default'
+              connectionType: 'Azure Resource Manager'
+              azureSubscription: 'azure-connection'
+              azureResourceGroup: 'pulse-rg'
+              kubernetesCluster: 'pulse_aks'
+              namespace: 'pulse-dev'
               command: 'upgrade'
               chartType: 'FilePath'
-              chartPath: './charts/work-tracker' # Path to your Helm chart folder
-              releaseName: 'pulse-work-api'
-              install: true
-              # This line overrides the image tag in your values.yaml with the unique build ID
+              chartPath: 'pulse-infra/helm/pulse'
+              releaseName: 'pulse-api'
               overrideValues: 'image.tag=$(tag)'
