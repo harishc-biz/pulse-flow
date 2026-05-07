@@ -35,31 +35,3 @@ stages:
         tags: |
           $(tag)
           latest
-
-
-- stage: Deploy
-  displayName: "Deploy to AKS"
-  dependsOn: Build
-  condition: succeeded()
-  jobs:
-  - deployment: Deploy
-    pool:
-      vmImage: 'ubuntu-latest'
-    environment: 'dev'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: HelmDeploy@0
-            displayName: "Helm Deploy"
-            inputs:
-              connectionType: 'Azure Resource Manager'
-              azureSubscription: 'azure-connection'
-              azureResourceGroup: 'pulse-rg'
-              kubernetesCluster: 'pulse_aks'
-              namespace: 'pulse-dev'
-              command: 'upgrade'
-              chartType: 'FilePath'
-              chartPath: './pulse-infra/helm/pulse'
-              releaseName: 'pulse-api'
-              overrideValues: 'image.tag=$(tag)'
