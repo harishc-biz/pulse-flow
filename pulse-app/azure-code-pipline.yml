@@ -72,6 +72,6 @@ stages:
               namespace: 'pulse-dev'
               command: 'upgrade'
               chartType: 'FilePath'
-              chartPath: '$(System.DefaultWorkingDirectory)/pulse-infra/helm/pulse'
+              chartPath: './pulse-infra/helm/pulse'
               releaseName: 'pulse-api'
               overrideValues: 'image.tag=$(tag)'
