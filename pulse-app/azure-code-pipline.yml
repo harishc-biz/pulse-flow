@@ -36,6 +36,19 @@ stages:
           $(tag)
           latest
 
+- stage: Path
+  displayName: "Check the file path"
+  jobs:
+  - job: Path
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - script: |
+        echo "Current directory is: $(pwd)"
+        echo "Listing files in root:"
+        ls -R
+      displayName: 'Debug: List Files'
+
 - stage: Deploy
   displayName: "Deploy to AKS"
   dependsOn: Build
