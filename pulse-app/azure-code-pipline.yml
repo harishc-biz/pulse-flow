@@ -41,14 +41,6 @@ stages:
   dependsOn: Build
   condition: succeeded()
   jobs:
-  - check_path: Path
-    steps: 
-    - script: |
-        echo "Current directory is: $(pwd)"
-        echo "Listing files in root:"
-        ls -R
-      displayName: 'Debug: List Files'
-      
   - deployment: Deploy
     pool:
       vmImage: 'ubuntu-latest'
