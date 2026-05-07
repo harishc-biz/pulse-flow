@@ -5,3 +5,7 @@ variable "region" {
 variable "resource_group" {
   default = "pulse-rg"
 }
+
+variable "queue_name" {
+  default = "work-queue"
+}

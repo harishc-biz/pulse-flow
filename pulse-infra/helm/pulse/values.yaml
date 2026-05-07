@@ -1,0 +1,9 @@
+replicaCount: 2
+
+image:
+  repository: pulseflowacr.azurecr.io/work-api
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+azure:
+  queueName: "work-queue"
