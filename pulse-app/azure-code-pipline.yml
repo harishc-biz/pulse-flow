@@ -59,6 +59,6 @@ stages:
               namespace: 'pulse-dev'
               command: 'upgrade'
               chartType: 'FilePath'
-              chartPath: 'pulse-infra/helm/pulse'
+              chartPath: 'pulse-infra/helm/'
               releaseName: 'pulse-api'
               overrideValues: 'image.tag=$(tag)'
