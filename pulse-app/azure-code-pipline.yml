@@ -41,6 +41,14 @@ stages:
   dependsOn: Build
   condition: succeeded()
   jobs:
+  - check_path: Path
+    steps: 
+    - script: |
+        echo "Current directory is: $(pwd)"
+        echo "Listing files in root:"
+        ls -R
+      displayName: 'Debug: List Files'
+      
   - deployment: Deploy
     pool:
       vmImage: 'ubuntu-latest'
@@ -59,6 +67,6 @@ stages:
               namespace: 'pulse-dev'
               command: 'upgrade'
               chartType: 'FilePath'
-              chartPath: 'pulse-flow/pulse-infra/helm/pulse'
+              chartPath: '$(System.DefaultWorkingDirectory)/pulse-infra/helm/pulse'
               releaseName: 'pulse-api'
               overrideValues: 'image.tag=$(tag)'
