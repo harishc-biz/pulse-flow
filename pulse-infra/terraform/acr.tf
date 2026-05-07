@@ -7,3 +7,9 @@ module "acr" {
   sku                     = "Basic"
   zone_redundancy_enabled = false
 }
+
+resource "azurerm_role_assignment" "aks_acr_pull" {
+  scope                = module.acr.resource_id
+  role_definition_name = "AcrPull"
+  principal_id = module.aks_cluster.kubelet_identity.objectId
+}

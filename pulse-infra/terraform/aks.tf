@@ -16,11 +16,3 @@ module "aks_cluster" {
     enabled = true
   }
 }
-
-
-
-# resource "azurerm_role_assignment" "aks_to_kv" {
-#   scope                = module.keyvault.resource_id
-#   role_definition_name = "Key Vault Secrets User"
-#   principal_id         = module.aks_cluster.resource_id
-# }
