@@ -5,4 +5,8 @@ location = var.region
 name = "pulseServiceBus"
 resource_group_name = var.resource_group
 sku = "Basic"
+
+queues = {
+    "work-queue" = {}
+  }
 }
