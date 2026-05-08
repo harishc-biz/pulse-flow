@@ -14,3 +14,9 @@ resource "azurerm_role_assignment" "managed_identity_role" {
   role_definition_name = "Contributor"
   principal_id         = module.managedidentity.principal_id
 }
+
+resource "azurerm_role_assignment" "aks_identity_operator" {
+  scope                = module.managedidentity.resource_id
+  role_definition_name = "Managed Identity Operator"
+  principal_id = module.aks_cluster.kubelet_identity.objectId
+}

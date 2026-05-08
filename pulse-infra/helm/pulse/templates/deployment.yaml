@@ -2,61 +2,37 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "pulse.fullname" . }}
-  labels:
-    {{ include "pulse.labels" . | nindent 4 }}
 spec:
-  # This runs 2 copies of your app for high availability
-  replicas: {{ .Values.replicaCount | default 2 }}
+  replicas: {{ .Values.replicaCount }}
+  # --- THE SELECTOR BLOCK (This was likely missing or broken) ---
   selector:
     matchLabels:
-      {{ include "pulse.selectorLabels" . | nindent 6 }}
+      app: pulse-api
+  # --------------------------------------------------------------
   template:
     metadata:
       labels:
-        {{ include "pulse.selectorLabels" . | nindent 8 }}
+        app: pulse-api
     spec:
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy | default "Always" }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           ports:
-            - name: http
-              containerPort: 8080 # .NET Default port
-              protocol: TCP
-          
-          # 1. Inject Secrets as Environment Variables
+            - containerPort: 8080
           env:
             - name: ServiceBusConnectionString
               valueFrom:
                 secretKeyRef:
-                  # This name must match the secretName in your SecretProviderClass
-                  name: work-api-bus-secret 
+                  name: pulse-api-secrets
                   key: connectionstring
-            - name: QueueName
-              value: {{ .Values.azure.queueName | default "work-queue" | quote }}
-
-          # 2. Mount the Secret Store Volume
           volumeMounts:
             - name: secrets-store-inline
               mountPath: "/mnt/secrets-store"
               readOnly: true
-
-          # Health Checks (Optional but recommended for AKS)
-          livenessProbe:
-            httpGet:
-              path: /api/work
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /api/work
-              port: http
-
-      # 3. Define the Volume using the CSI Driver
       volumes:
         - name: secrets-store-inline
           csi:
             driver: secrets-store.csi.k8s.io
             readOnly: true
             volumeAttributes:
-              # Matches the metadata.name in your secretproviderclass.yaml
               secretProviderClass: {{ include "pulse.fullname" . }}

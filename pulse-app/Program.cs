@@ -67,7 +67,7 @@ _ = Task.Run(async () =>
         Console.WriteLine($"[Worker] Processing message from Azure: {body}");
 
         // Add to our list with a timestamp
-        processedItems.Add($"{body} (Processed by AKS at {DateTime.Now:T})");
+        processedItems.Add($"{body}");
 
         // Tell Azure the message is handled successfully
         await args.CompleteMessageAsync(args.Message);
