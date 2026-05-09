@@ -14,9 +14,9 @@ module "keyvault" {
   public_network_access_enabled  = true
 
   network_acls = {
-    default_action = "Allow"
-    bypass         = "AzureServices"
-    ip_rules       = []
+    default_action             = "Allow"
+    bypass                     = "AzureServices"
+    ip_rules                   = []
     virtual_network_subnet_ids = []
   }
 
@@ -32,6 +32,13 @@ module "keyvault" {
   secrets_value = {
     "sb_secret" = module.servicebus-namespace.resource_authorization_rules["Pulse_SAS"].primary_connection_string
     "q_secret"  = var.queue_name
+  }
+
+  legacy_access_policies = {
+    "aks_identity_access" = {
+      object_id          = module.aks_cluster.kubelet_identity.objectId
+      secret_permissions = ["Get", "List"]
+    }
   }
 }
 

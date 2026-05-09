@@ -25,4 +25,4 @@ service:
 azure:
   keyvaultName: "pulseFlowKV"
   tenantId: "683a59cf-e313-44e3-95cb-83c3edfdd251"
-  identityClientId: "3b27bf65-517c-4aec-8760-66b093ed9650"
+  identityClientId: "17396f09-2989-475b-ae2f-bf76cf4b04a4"
