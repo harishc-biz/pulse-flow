@@ -10,7 +10,7 @@ trigger:
 variables:
   serviceConnection: 'azure-svc-conn'
   workingDirectory: '$(System.DefaultWorkingDirectory)/pulse-infra/terraform'
-  terraformVersion: '1.8.5'
+  terraformVersion: '1.12.1'
 
 pool:
   vmImage: 'ubuntu-latest'
