@@ -14,7 +14,10 @@ module "keyvault" {
   public_network_access_enabled  = true
 
   network_acls = {
-    bypass         = null
+    default_action = "Allow"
+    bypass         = "AzureServices"
+    ip_rules       = []
+    virtual_network_subnet_ids = []
   }
 
   secrets = {
