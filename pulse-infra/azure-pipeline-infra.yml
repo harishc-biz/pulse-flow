@@ -8,7 +8,7 @@ trigger:
       - pulse-infra/terraform/**
 
 variables:
-  serviceConnection: 'azure-connection'
+  serviceConnection: 'azure-svc-conn'
   workingDirectory: '$(System.DefaultWorkingDirectory)/pulse-infra/terraform'
   terraformVersion: '1.8.5'
 
@@ -41,7 +41,11 @@ stages:
         provider: 'azurerm'
         command: 'init'
         workingDirectory: '$(workingDirectory)'
-        backendServiceArm: '$(serviceConnection)'
+        backendServiceArm: 'azure-svc-conn'
+        backendAzureRmResourceGroupName: 'pulse-rg'
+        backendAzureRmStorageAccountName: 'pulseterraformstate'
+        backendAzureRmContainerName: 'tfstate'
+        backendAzureRmKey: 'terraform.tfstate'
 
     - task: TerraformTaskV4@4
       displayName: 'Terraform Validate'
