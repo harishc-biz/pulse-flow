@@ -76,14 +76,13 @@ stages:
 
   condition: and(
     succeeded(),
-    eq(variables['Build.SourceBranch'], 'refs/heads/main')
-  )
+    eq(variables['Build.SourceBranch'], 'refs/heads/main'))
 
   jobs:
   - deployment: Apply
     displayName: 'Apply Terraform Changes'
 
-    environment: 'production'
+    environment: 'dev'
 
     strategy:
       runOnce:
