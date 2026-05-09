@@ -8,7 +8,7 @@ trigger:
       - pulse-infra/terraform/**
 
 variables:
-  serviceConnection: 'azure-service-connection'
+  serviceConnection: 'azure-connection'
   workingDirectory: '$(System.DefaultWorkingDirectory)/pulse-infra/terraform'
   terraformVersion: '1.8.5'
 
