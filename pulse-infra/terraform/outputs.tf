@@ -3,5 +3,5 @@ output "managedidentity_id" {
 }
 
 output "aks_clientid" {
-  value = module.aks_cluster.kubelet_identity.objectId
+  value = module.aks_cluster.kubelet_identity.clientId
 }
