@@ -14,17 +14,9 @@ module "keyvault" {
   public_network_access_enabled  = true
 
   network_acls = {
-    default_action             = "Allow"
-    bypass                     = "AzureServices"
-    ip_rules                   = []
-  }
-
-  private_endpoints = {
-    primary = {
-      name                          = "pe-keyvault"
-      subnet_resource_id            = module.vnet.subnets["endpoint-subnet"].resource_id
-      private_dns_zone_resource_ids = [azurerm_private_dns_zone.kv_dns.id]
-    }
+    default_action = "Allow"
+    bypass         = "AzureServices"
+    ip_rules       = []
   }
 
   secrets = {
@@ -49,15 +41,5 @@ module "keyvault" {
   }
 }
 
-resource "azurerm_private_dns_zone" "kv_dns" {
-  name                = "privatelink.vaultcore.azure.net"
-  resource_group_name = var.resource_group
-}
 
-resource "azurerm_private_dns_zone_virtual_network_link" "kv_link" {
-  name                  = "kv-vnet-link"
-  resource_group_name   = var.resource_group
-  private_dns_zone_name = azurerm_private_dns_zone.kv_dns.name
-  virtual_network_id    = module.vnet.resource_id
-}
 

@@ -18,5 +18,5 @@ resource "azurerm_role_assignment" "aks_acr_pull" {
 resource "azurerm_role_assignment" "aks_acr_push" {
   scope                = module.acr.resource_id
   role_definition_name = "AcrPush"
-  principal_id         = module.managedidentity.principal_id
+  principal_id         = module.aks_cluster.kubelet_identity.objectId
 }
