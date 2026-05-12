@@ -2,32 +2,38 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "pulse.fullname" . }}
+  labels:
+    {{- include "pulse.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
-  # --- THE SELECTOR BLOCK (This was likely missing or broken) ---
   selector:
     matchLabels:
-      app: pulse-api
-  # --------------------------------------------------------------
+      {{- include "pulse.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: pulse-api
+        {{- include "pulse.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+          # SATISFIES THE MANAGED NAMESPACE QUOTA
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
           env:
             - name: ServiceBusConnectionString
               valueFrom:
                 secretKeyRef:
-                  name: pulse-api-secrets
-                  key: connectionstring
+                  name: {{ .Values.env.secretName }}
+                  key: {{ .Values.env.secretKey }}
           volumeMounts:
             - name: secrets-store-inline
-              mountPath: "/mnt/secrets-store"
+              mountPath: {{ .Values.volume.mountPath }}
               readOnly: true
       volumes:
         - name: secrets-store-inline
@@ -35,4 +41,4 @@ spec:
             driver: secrets-store.csi.k8s.io
             readOnly: true
             volumeAttributes:
-              secretProviderClass: {{ include "pulse.fullname" . }}
+              secretProviderClass: {{ .Values.volume.secretProviderClass | default (include "pulse.fullname" .) }}

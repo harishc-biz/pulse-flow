@@ -1,28 +1,34 @@
-# Default values for pulse.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
-# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
 replicaCount: 1
 
-# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
   repository: flowacr.azurecr.io/pulseapp
-  # This sets the pull policy for images.
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
-# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
 service:
-  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
   type: LoadBalancer
-  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
   port: 80
   targetPort: 8080
-  selector: pulse-api
+
+# Environment Variable Mapping
+env:
+  secretName: pulse-api-secrets
+  secretKey: connectionstring
+
+# Volume Configuration
+volume:
+  mountPath: "/mnt/secrets-store"
+  secretProviderClass: pulse-api
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
 
 azure:
   keyvaultName: "pulseFlowKV"
   tenantId: "683a59cf-e313-44e3-95cb-83c3edfdd251"
-  identityClientId: "a306ec4d-4f61-4c01-864d-1ab5cb6b4eda"
+  identityClientId: "43074364-a9eb-431d-9bba-c38a7d332522"
