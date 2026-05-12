@@ -20,7 +20,18 @@ spec:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
               protocol: TCP
-          # SATISFIES THE MANAGED NAMESPACE QUOTA
+          livenessProbe:
+            httpGet:
+              path: /api/work  # Or your specific health endpoint
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /api/work
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
