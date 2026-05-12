@@ -2,17 +2,15 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "pulse.fullname" . }}
-  labels:
-    {{- include "pulse.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "pulse.selectorLabels" . | nindent 6 }}
+      app: pulse-api
   template:
     metadata:
       labels:
-        {{- include "pulse.selectorLabels" . | nindent 8 }}
+       app: pulse-api
     spec:
       containers:
         - name: {{ .Chart.Name }}
@@ -41,4 +39,4 @@ spec:
             driver: secrets-store.csi.k8s.io
             readOnly: true
             volumeAttributes:
-              secretProviderClass: {{ .Values.volume.secretProviderClass | default (include "pulse.fullname" .) }}
+              secretProviderClass: {{ .Values.volume.secretProviderClass  }}

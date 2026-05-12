@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: {{ include "pulse.fullname" . }}
   labels:
-    {{- include "pulse.labels" . | nindent 4 }}
+    app: pulse-api
 spec:
   type: {{ .Values.service.type }}
   ports:
