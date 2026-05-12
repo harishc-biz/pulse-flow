@@ -13,7 +13,6 @@ module "vnet" {
       address_prefixes = ["10.0.1.0/24"]
       # # Essential for Key Vault CSI Driver to reach Key Vault via Service Endpoint if not using Private Link
       # service_endpoints = ["Microsoft.KeyVault", "Microsoft.ServiceBus"]
-
       delegations = [{
         name = "aks-delegation"
         service_delegation = {

@@ -46,4 +46,5 @@ resource "azurerm_role_assignment" "aks_network" {
   scope                = module.vnet.subnets["aks-subnet"].resource_id
   role_definition_name = "Network Contributor"
   principal_id         = module.aks_cluster.resource.identity[0].principal_id
+  depends_on = [module.aks_cluster]
 }
