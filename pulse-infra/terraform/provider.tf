@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.70.0"
     }
+    azapi = {
+      source  = "Azure/azapi"
+      version = "2.8.0" 
+    }
   }
   backend "azurerm" {
     resource_group_name  = "pulse-rg"
