@@ -55,6 +55,15 @@ stages:
         workingDirectory: '$(workingDirectory)'
 
     - task: TerraformTaskV4@4
+      displayName: 'Terraform Format'
+      inputs:
+        provider: 'azurerm'
+        command: 'custom'
+        workingDirectory: '$(workingDirectory)'
+        outputTo: 'console'
+        customCommand: 'fmt'
+
+    - task: TerraformTaskV4@4
       displayName: 'Terraform Plan'
       inputs:
         provider: 'azurerm'
