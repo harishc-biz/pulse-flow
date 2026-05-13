@@ -1,9 +1,12 @@
-# 1. Create the Key Vault using AVM
+locals {
+  keyvault_name = lower(format("%spulseFlowKV", var.env))
+}
+
 module "keyvault" {
   source  = "Azure/avm-res-keyvault-vault/azurerm"
   version = "0.9.1"
 
-  name                = "pulseFlowKV"
+  name                = local.keyvault_name
   resource_group_name = var.resource_group
   location            = var.region
   tenant_id           = data.azurerm_client_config.current.tenant_id
@@ -40,6 +43,3 @@ module "keyvault" {
     }
   }
 }
-
-
-

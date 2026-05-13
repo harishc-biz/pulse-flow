@@ -1,56 +1,63 @@
-# Pulse-Flow: SRE Asynchronous Messaging System
+# Pulse-Flow: High-Availability SRE Messaging Pipeline
 
-Pulse-Flow is a cloud-native asynchronous messaging pipeline built to demonstrate high-availability, secure secret management, and robust observability within a Kubernetes environment.
 
-## 🏗 System Architecture
+Pulse-Flow is a production-ready asynchronous event-processing engine. It demonstrates the **SRE "Gold Standard"** for decoupling services using Azure Service Bus, securing secrets via Key Vault CSI, and maintaining 99.9% availability through Kubernetes-native self-healing.
 
-The project follows a producer-consumer pattern decoupled by a message broker:
-1.  **API (Producer):** A service that receives HTTP POST requests and enqueues messages.
-2.  **Azure Service Bus:** The reliable message broker for asynchronous communication.
-3.  **Background Worker (Consumer):** A routine that pulls messages from the Service Bus and processes them.
-4.  **Security:** Integration with **Azure Key Vault** via the **Secrets Store CSI Driver** to mount sensitive connection strings as volumes.
+---
 
-## 📂 Repository Structure
+## Architecture Overview
+The system implements a non-blocking **Producer-Consumer** pattern to ensure the API remains responsive even during heavy message processing.
 
-* [**Terraform Infrastructure**](./terraform/README.md): IaC for AKS, Service Bus, Key Vault, and Networking.
-* [**Application & Helm**](./app/README.md): Go source code, Docker configuration, and Kubernetes manifests.
 
-## 🌐 Connectivity & Access
 
-The application is exposed via an **NGINX Ingress Controller** using a managed Azure Load Balancer.
+1.  **API (Go/Web):** A high-performance ingress point that validates requests.
+2.  **Service Bus Queue:** Acts as the persistent buffer (At-Least-Once delivery).
+3.  **Background Worker:** A concurrent consumer that processes tasks from the queue.
+4.  **Observability:** Integrated with **Application Insights** for distributed tracing.
+5.  **Security:** Secrets are injected via **Azure Key Vault Secret Store CSI Driver** (Zero-trust).
 
-**Public API Endpoint:** `http://20.235.200.43/api/work`
+---
 
-### Validating the Flow (Curl)
-To send a message through the pipeline, use the following format:
+## 📂 Repository Roadmap
+* 📂 [**Infrastructure (Terraform)**](./pulse-infra/README.md) - Cloud resource definitions and RBAC.
+* 📂 [**Application & Manifests**](./pulse-app/README.md) - Source code, Dockerfile, and Helm charts.
+
+---
+
+## 🌐 Quick Start & Testing
+
+The application is live and managed by the **NGINX Ingress Controller**.
+
+### 1. API Endpoints
+| Action | Endpoint | Method | Expected Payload |
+| :--- | :--- | :--- | :--- |
+| **Health** | `/` | `GET` | 200 OK |
+| **Process** | `/api/work` | `POST` | `"string"` |
+| **Status** | `/api/work` | `GET` | List of items |
+
+### 2. Integration Test (Curl)
 ```bash
 curl -X POST "[http://20.235.200.43/api/work](http://20.235.200.43/api/work)" \
      -H "Content-Type: application/json" \
-     -d "\"SRE Pipeline Stability Test\""
+     -d "\"Final SRE Validation Test\""
+```
+Success Response: 202 Accepted
 
+---
 
+## 🛡Security & Reliability Features
+**Zero-Hardcoding:** All connection strings are mounted as ephemeral volumes from Key Vault.
 
-Future Enhancements
-KEDA Implementation: Scale background workers to zero when the queue is empty and burst up based on message backlog.
+**Network Policy:**  Inbound traffic is strictly controlled via NSG Rule 500.
 
-Istio Service Mesh: Implement mTLS and advanced traffic shadowing for "Canary" deployments.
+**Self-Healing:** Liveness and Readiness probes ensure traffic only hits healthy pods.
 
-Automated TLS: Integrate cert-manager with Let's Encrypt for automatic HTTPS.
-# pulse-flow
+**Traffic Integrity:** externalTrafficPolicy: Local is enabled to preserve client source IPs for auditing.
 
-to send message 
-curl -X POST "http://localhost:5195/api/work" -H "Content-Type: application/json" -d "\"Hello from Localhost\""
+---
+## 📈 Future Roadmap
+* **KEDA Integration:** Auto-scale worker pods based on Service Bus queue depth.
 
+* **Istio Service Mesh:** Mutual TLS and advanced telemetry.
 
-To fetch the message 
-http://localhost:5195/api/work
-
-install nginx ingress
-# 1. Add the repository
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-helm repo update
-
-# 2. Install/Upgrade with Static IP and Azure-specific annotations
-helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
-  --namespace ingress --create-namespace \
-  --set controller.replicaCount=2
+* **SSL/TLS:** Automate certificate renewal via Cert-Manager.

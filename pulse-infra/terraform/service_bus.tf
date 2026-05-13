@@ -1,8 +1,12 @@
+locals {
+  servicebus_name = lower(format("%spulseServiceBus", var.env))
+}
+
 module "servicebus-namespace" {
   source              = "Azure/avm-res-servicebus-namespace/azurerm"
   version             = "0.4.0"
   location            = var.region
-  name                = "pulseServiceBus"
+  name                = local.servicebus_name
   resource_group_name = var.resource_group
   sku                 = "Basic"
 

@@ -9,3 +9,7 @@ variable "resource_group" {
 variable "queue_name" {
   default = "work-queue"
 }
+
+variable "env" {
+  default = "dev"
+}

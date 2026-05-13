@@ -1,7 +1,16 @@
+locals {
+  aks_name = lower(format("$s-pulse_aks", var.env))
+  namespace_name = lower(format("pulse-%s", var.env))
+}
+
+data "azurerm_resource_group" "rg" {
+  name = var.resource_group
+}
+
 module "aks_cluster" {
   source    = "Azure/avm-res-containerservice-managedcluster/azurerm"
   version   = "0.5.4"
-  name      = "pulse_aks"
+  name      = local.aks_name
   location  = var.region
   parent_id = data.azurerm_resource_group.rg.id
   sku = {
@@ -30,8 +39,8 @@ module "aks_cluster" {
     enabled = true
   }
   namespace = {
-    "pulse-dev" = {
-      name = "pulse-dev"
+    "pulse" = {
+      name = local.namespace_name
       default_resource_quota = {
         cpu_limit      = "2000m"
         cpu_request    = "1000m"

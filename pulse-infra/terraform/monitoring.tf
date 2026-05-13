@@ -1,5 +1,9 @@
+locals {
+  la_name = lower(format("%s-pulse-log-analytics", var.env))
+}
+
 resource "azurerm_log_analytics_workspace" "logs" {
-  name                = "pulse-log-analytics"
+  name                = local.la_name
   location            = var.region
   resource_group_name = var.resource_group
 }
