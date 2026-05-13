@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: flowacr.azurecr.io/pulseapp
+  repository: devflowacr.azurecr.io/pulseapp
   pullPolicy: IfNotPresent
   tag: "latest"
 
