@@ -1,5 +1,5 @@
 locals {
-  aks_name = lower(format("$spulse_aks", var.env))
+  aks_name = lower(format("%spulse_aks", var.env))
   namespace_name = lower(format("pulse-%s", var.env))
 }
 
