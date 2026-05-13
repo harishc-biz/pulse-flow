@@ -1,5 +1,5 @@
 locals {
-  acr_name = lower(format("%s-flowACR", var.env))
+  acr_name = lower(format("%sflowACR", var.env))
   sku = "Basic"
 }
 
