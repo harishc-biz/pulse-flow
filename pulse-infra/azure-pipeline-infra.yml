@@ -2,7 +2,6 @@ trigger:
   branches:
     include:
       - main
-
   paths:
     include:
       - pulse-infra/terraform/**
@@ -18,111 +17,112 @@ pool:
 stages:
 
 # =========================================================
-# Terraform PLAN
+# DEV STAGES
 # =========================================================
-- stage: TerraformPlan
-  displayName: 'Terraform Plan'
-
+- stage: TerraformPlan_Dev
+  displayName: 'Dev: Plan'
   jobs:
   - job: Plan
-    displayName: 'Run Terraform Plan'
-
     steps:
     - checkout: self
-
     - task: TerraformInstaller@1
-      displayName: 'Install Terraform'
       inputs:
         terraformVersion: '$(terraformVersion)'
-
     - task: TerraformTaskV4@4
-      displayName: 'Terraform Init'
+      displayName: 'Init Dev'
       inputs:
         provider: 'azurerm'
         command: 'init'
         workingDirectory: '$(workingDirectory)'
-        backendServiceArm: 'azure-svc-conn'
+        backendServiceArm: '$(serviceConnection)'
         backendAzureRmResourceGroupName: 'pulse-rg'
         backendAzureRmStorageAccountName: 'pulseterraformstate'
         backendAzureRmContainerName: 'tfstate'
-        backendAzureRmKey: 'terraform.tfstate'
-
+        backendAzureRmKey: 'dev.tfstate' # Dedicated Dev State
     - task: TerraformTaskV4@4
-      displayName: 'Terraform Validate'
-      inputs:
-        provider: 'azurerm'
-        command: 'validate'
-        workingDirectory: '$(workingDirectory)'
-
-    - task: TerraformTaskV4@4
-      displayName: 'Terraform Plan'
+      displayName: 'Plan Dev'
       inputs:
         provider: 'azurerm'
         command: 'plan'
         workingDirectory: '$(workingDirectory)'
         environmentServiceNameAzureRM: '$(serviceConnection)'
-        commandOptions: '-out=tfplan.tfplan -input=false'
+        commandOptions: '-var-file="pulse-dev.tfvars" -out=dev.tfplan'
+    - publish: '$(workingDirectory)/dev.tfplan'
+      artifact: dev-plan
 
-    - task: PublishPipelineArtifact@1
-      displayName: 'Publish Terraform Plan'
-      inputs:
-        targetPath: '$(workingDirectory)/tfplan.tfplan'
-        artifact: 'tfplan'
-        publishLocation: 'pipeline'
-
-# =========================================================
-# Terraform APPLY
-# =========================================================
-- stage: TerraformApply
-  displayName: 'Terraform Apply'
-
-  dependsOn: TerraformPlan
-
-  condition: and(
-    succeeded(),
-    eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-
+- stage: TerraformApply_Dev
+  displayName: 'Dev: Apply'
+  dependsOn: TerraformPlan_Dev
+  condition: succeeded()
   jobs:
-  - deployment: Apply
-    displayName: 'Apply Terraform Changes'
-
+  - deployment: ApplyDev
     environment: 'dev'
-
     strategy:
       runOnce:
         deploy:
           steps:
-
           - checkout: self
-
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download Terraform Plan'
-            inputs:
-              artifact: 'tfplan'
-              path: '$(workingDirectory)'
-
-          - task: TerraformInstaller@1
-            displayName: 'Install Terraform'
-            inputs:
-              terraformVersion: '$(terraformVersion)'
-
+          - download: current
+            artifact: dev-plan
           - task: TerraformTaskV4@4
-            displayName: 'Terraform Init'
-            inputs:
-              provider: 'azurerm'
-              command: 'init'
-              workingDirectory: '$(workingDirectory)'
-              backendServiceArm: 'azure-svc-conn'
-              backendAzureRmResourceGroupName: 'pulse-rg'
-              backendAzureRmStorageAccountName: 'pulseterraformstate'
-              backendAzureRmContainerName: 'tfstate'
-              backendAzureRmKey: 'terraform.tfstate'
-
-          - task: TerraformTaskV4@4
-            displayName: 'Terraform Apply'
+            displayName: 'Apply Dev'
             inputs:
               provider: 'azurerm'
               command: 'apply'
               workingDirectory: '$(workingDirectory)'
-              commandOptions: '-input=false tfplan.tfplan'
+              commandOptions: '$(Pipeline.Workspace)/dev-plan/dev.tfplan'
+              environmentServiceNameAzureRM: '$(serviceConnection)'
+
+# =========================================================
+# PROD STAGES
+# =========================================================
+- stage: TerraformPlan_Prod
+  displayName: 'Prod: Plan'
+  dependsOn: TerraformApply_Dev # Only plan Prod if Dev apply succeeded
+  jobs:
+  - job: Plan
+    steps:
+    - checkout: self
+    - task: TerraformTaskV4@4
+      displayName: 'Init Prod'
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(workingDirectory)'
+        backendServiceArm: '$(serviceConnection)'
+        backendAzureRmResourceGroupName: 'pulse-rg'
+        backendAzureRmStorageAccountName: 'pulseterraformstate'
+        backendAzureRmContainerName: 'tfstate'
+        backendAzureRmKey: 'prod.tfstate'
+    - task: TerraformTaskV4@4
+      displayName: 'Plan Prod'
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        workingDirectory: '$(workingDirectory)'
+        environmentServiceNameAzureRM: '$(serviceConnection)'
+        commandOptions: '-var-file="pulse-prod.tfvars" -out=prod.tfplan'
+    - publish: '$(workingDirectory)/prod.tfplan'
+      artifact: prod-plan
+
+- stage: TerraformApply_Prod
+  displayName: 'Prod: Apply'
+  dependsOn: TerraformPlan_Prod
+  jobs:
+  - deployment: ApplyProd
+    environment: 'prod'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+          - download: current
+            artifact: prod-plan
+          - task: TerraformTaskV4@4
+            displayName: 'Apply Prod'
+            inputs:
+              provider: 'azurerm'
+              command: 'apply'
+              workingDirectory: '$(workingDirectory)'
+              commandOptions: '$(Pipeline.Workspace)/prod-plan/prod.tfplan'
               environmentServiceNameAzureRM: '$(serviceConnection)'
