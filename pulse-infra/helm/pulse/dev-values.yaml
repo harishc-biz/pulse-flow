@@ -30,6 +30,6 @@ resources:
     memory: 256Mi
 
 azure:
-  keyvaultName: "pulseFlowKV"
+  keyvaultName: "devpulseflowkv"
   tenantId: "683a59cf-e313-44e3-95cb-83c3edfdd251"
-  identityClientId: "43074364-a9eb-431d-9bba-c38a7d332522"
+  identityClientId: "2dc089cd-e64d-44c3-8670-d7a60892c740"
