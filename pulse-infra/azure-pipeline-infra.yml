@@ -38,7 +38,7 @@ stages:
         backendAzureRmResourceGroupName: 'pulse-rg'
         backendAzureRmStorageAccountName: 'pulseterraformstate'
         backendAzureRmContainerName: 'tfstate'
-        backendAzureRmKey: 'dev.tfstate' # Dedicated Dev State
+        backendAzureRmKey: 'terraform.tfstate'
     - task: TerraformTaskV4@4
       displayName: 'Plan Dev'
       inputs:
