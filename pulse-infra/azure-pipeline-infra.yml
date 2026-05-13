@@ -62,8 +62,27 @@ stages:
         deploy:
           steps:
           - checkout: self
+
+          - task: TerraformInstaller@1
+            displayName: 'Install Terraform'
+            inputs:
+              terraformVersion: '$(terraformVersion)'
+
           - download: current
             artifact: dev-plan
+          
+          - task: TerraformTaskV4@4
+            displayName: 'Init Dev'
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              workingDirectory: '$(workingDirectory)'
+              backendServiceArm: '$(serviceConnection)'
+              backendAzureRmResourceGroupName: 'pulse-rg'
+              backendAzureRmStorageAccountName: 'pulseterraformstate'
+              backendAzureRmContainerName: 'tfstate'
+              backendAzureRmKey: 'terraform.tfstate'
+
           - task: TerraformTaskV4@4
             displayName: 'Apply Dev'
             inputs:
@@ -78,7 +97,7 @@ stages:
 # =========================================================
 - stage: TerraformPlan_Prod
   displayName: 'Prod: Plan'
-  dependsOn: TerraformApply_Dev # Only plan Prod if Dev apply succeeded
+  dependsOn: TerraformApply_Dev
   jobs:
   - job: Plan
     steps:
@@ -116,8 +135,27 @@ stages:
         deploy:
           steps:
           - checkout: self
+
+          - task: TerraformInstaller@1
+            displayName: 'Install Terraform'
+            inputs:
+              terraformVersion: '$(terraformVersion)'
+
           - download: current
             artifact: prod-plan
+          
+          - task: TerraformTaskV4@4
+            displayName: 'Init Prod'
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              workingDirectory: '$(workingDirectory)'
+              backendServiceArm: '$(serviceConnection)'
+              backendAzureRmResourceGroupName: 'pulse-rg'
+              backendAzureRmStorageAccountName: 'pulseterraformstate'
+              backendAzureRmContainerName: 'tfstate'
+              backendAzureRmKey: 'prod.tfstate'
+
           - task: TerraformTaskV4@4
             displayName: 'Apply Prod'
             inputs:
