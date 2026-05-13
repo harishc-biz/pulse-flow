@@ -4,6 +4,7 @@ locals {
 
 data "azurerm_client_config" "current" {}
 
+
 module "keyvault" {
   source  = "Azure/avm-res-keyvault-vault/azurerm"
   version = "0.9.1"

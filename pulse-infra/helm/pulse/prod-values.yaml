@@ -1,0 +1,35 @@
+replicaCount: 2
+
+image:
+  repository: flowacr.azurecr.io/pulseapp
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+  selector: pulse-api
+
+# Environment Variable Mapping
+env:
+  secretName: pulse-api-secrets
+  secretKey: connectionstring
+
+# Volume Configuration
+volume:
+  mountPath: "/mnt/secrets-store"
+  secretProviderClass: pulse-api
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+azure:
+  keyvaultName: "pulseFlowKV"
+  tenantId: "683a59cf-e313-44e3-95cb-83c3edfdd251"
+  identityClientId: "43074364-a9eb-431d-9bba-c38a7d332522"

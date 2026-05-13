@@ -1,5 +1,5 @@
 locals {
-  servicebus_name = lower(format("%spulseServiceBus", var.env))
+  servicebus_name = lower(format("%spulseSB", var.env))
 }
 
 module "servicebus-namespace" {
