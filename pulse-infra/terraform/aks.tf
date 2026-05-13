@@ -32,9 +32,9 @@ module "aks_cluster" {
   namespace = {
     "pulse-dev" = {
       name = "pulse-dev"
-      default_resource_quota = { 
-        cpu_limit      = "2000m" 
-        cpu_request    = "1000m" 
+      default_resource_quota = {
+        cpu_limit      = "2000m"
+        cpu_request    = "1000m"
         memory_limit   = "4Gi"
         memory_request = "2Gi"
       }
@@ -46,8 +46,21 @@ module "aks_cluster" {
       delete_policy   = "Delete"
     }
   }
+  addon_profile_oms_agent = {
+    enabled = true
+    config = {
+      log_analytics_workspace_resource_id = azurerm_log_analytics_workspace.logs.id
+    }
+  }
 
   tags = {
     app = "Pulse-app"
   }
+}
+
+
+resource "azurerm_role_assignment" "aks_network_contributor" {
+  scope                = data.azurerm_resource_group.rg.id
+  role_definition_name = "Network Contributor"
+  principal_id         = module.aks_cluster.identity_principal_id
 }
