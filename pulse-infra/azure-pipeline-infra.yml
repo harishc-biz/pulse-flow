@@ -102,6 +102,9 @@ stages:
   - job: Plan
     steps:
     - checkout: self
+    - task: TerraformInstaller@1
+      inputs:
+        terraformVersion: '$(terraformVersion)'
     - task: TerraformTaskV4@4
       displayName: 'Init Prod'
       inputs:
