@@ -201,3 +201,34 @@ stages:
         command: 'destroy'
         workingDirectory: '$(workingDirectory)'
         environmentServiceNameAzureRM: '$(serviceConnection)'
+
+- stage: TerraformDestroy_Prod
+  displayName: 'Prod: Destroy'
+  jobs:
+  - job: Prod_Destroy
+    steps:
+    - checkout: self
+    - task: TerraformInstaller@1
+      displayName: 'Install Terraform'
+      inputs:
+        terraformVersion: '$(terraformVersion)'
+
+    - task: TerraformTaskV4@4
+      displayName: 'Destroy Prod'
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(workingDirectory)'
+        backendServiceArm: '$(serviceConnection)'
+        backendAzureRmResourceGroupName: 'pulse-rg'
+        backendAzureRmStorageAccountName: 'pulseterraformstate'
+        backendAzureRmContainerName: 'tfstate'
+        backendAzureRmKey: 'prod.tfstate'
+
+    - task: TerraformTaskV4@4
+      displayName: 'Destroy Prod'
+      inputs:
+        provider: 'azurerm'
+        command: 'destroy'
+        workingDirectory: '$(workingDirectory)'
+        environmentServiceNameAzureRM: '$(serviceConnection)'
