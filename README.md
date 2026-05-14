@@ -1,7 +1,7 @@
 # Pulse-Flow: High-Availability SRE Messaging Pipeline
 
 
-Pulse-Flow is a production-ready asynchronous event-processing engine. It demonstrates the **SRE "Gold Standard"** for decoupling services using Azure Service Bus, securing secrets via Key Vault CSI, and maintaining 99.9% availability through Kubernetes-native self-healing.
+Pulse-Flow is a production-ready asynchronous event-processing engine. It demonstrates the **SRE "Gold Standard"** for decoupling services using Azure Service Bus, securing secrets via Key Vault CSI, and maintaining 99.9% availability through Kubernetes-native self-healing and multi environment deployment capabilities.
 
 ---
 
